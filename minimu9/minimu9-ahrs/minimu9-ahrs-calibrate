@@ -1,0 +1,6 @@
+#!/bin/sh
+echo "To calibrate the magnetometer, start rotating the IMU through "
+echo "as many different orientations as possible."
+sudo minimu9-ahrs -b /dev/i2c-1 --mode raw $@ | head -n2000 > /home/robin/minimu9/minimu9-ahrs-cal-data
+echo "You can stop rotating the IMU now."
+sudo minimu9-ahrs-calibrator -b /dev/i2c-1 < /home/robin/minimu9/minimu9-ahrs-cal-data > /home/robin/minimu9/minimu9-ahrs-cal
