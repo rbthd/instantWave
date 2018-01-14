@@ -12,7 +12,7 @@ import datetime
 ## is overwritten. Be careful not to accidentaly delete your saved
 ## results. 
 
-rb = open_workbook('/home/robin/minimu9/results.xls',formatting_info=True)
+rb = open_workbook('/home/robin/instantWave/minimu9/results.xls',formatting_info=True)
 r_sheet = rb.sheet_by_index(0) #read-only copy to check the file
 wb = copy(rb) #writable copy; will just write into this file
 w_sheet = wb.get_sheet(0) #the sheet to write to within the writable copy
@@ -97,4 +97,4 @@ while i < (line_max) : ##represents the length of data
 
 	row+=1
 	i+=1
-wb.save("/home/robin/minimu9/results.xls")
+wb.save("/home/robin/instantWave/minimu9/results.xls")

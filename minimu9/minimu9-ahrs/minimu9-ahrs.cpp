@@ -247,16 +247,16 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
 
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
-	std::cout << "OUTPUT1 : " ;
+	//std::cout << "OUTPUT1 : " ;
     output(rotation);
     std::cout << "   ";
-    std::cout << "OUTPUT2 : " ;
+    //std::cout << "OUTPUT2 : " ;
     output2(rotation);
     std::cout << "   " ;
-    std::cout << "OUTPUT3 : " ;
+    //std::cout << "OUTPUT3 : " ;
     output3(rotation);
     std::cout << "   ";
-    std::cout << acceleration << "   " <<magnetic_field << std::endl;
+    std::cout << acceleration << "  " << magnetic_field << std::endl;
     
     loop_pacer.pace();
   }

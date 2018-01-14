@@ -1,8 +1,8 @@
 #!/bin/bash
 
-sudo rm /home/robin/minimu9/scripts/temp_results.txt
-sudo touch /home/robin/minimu9/scripts/temp_results.txt
-temp_results=/home/robin/minimu9/scripts/temp_results.txt
+sudo rm /home/robin/instantWave/minimu9/scripts/temp_results.txt
+sudo touch /home/robin/instantWave/minimu9/scripts/temp_results.txt
+temp_results=/home/robin/instantWave/minimu9/scripts/temp_results.txt
 sudo chmod 777 $temp_results
 
 ## 200 first samples will be destroyed --> represents around 5s of running
@@ -13,7 +13,7 @@ echo "Start getting data from IMU"
 # remaining around 1500 samples
 
 timeout 60 sudo ../minimu9-ahrs/minimu9-ahrs -b /dev/i2c-1 --mode all\
- | tee temp_results.txt #30s of real probing
+ | tee temp_results.txt #(timeout - 5s) of real probing
 echo "Data saved in temp file"
 
 sudo cp temp_results.txt ./temp_results_back.txt #copy of original file before removing 200 first samples
