@@ -20,7 +20,23 @@
 #include <chrono>
 #include <math.h>
 #include <fstream>
-#include <string>
+#include <string.h>
+
+
+void clean(char*buffer, FILE *fp)
+{
+	char *p = strchr(buffer,'\n');
+	if(p!=NULL)
+	{
+		*p=0;
+	}
+	else
+	{
+		int c;
+		while((c= fgetc(fp)) != '\n' && c!=EOF);
+	}
+}
+
 
 
 // TODO: print warning if accelerometer magnitude is not close to 1 when starting up
@@ -262,20 +278,18 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
   }
 }
 
-void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *output, rotation_output_function * output2, rotation_output_function * output3)
+void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *output, rotation_output_function * output2, rotation_output_function * output3, char* path)
 {
-	imu.load_calibration();
-  imu.enable();
+   imu.load_calibration();
+   imu.enable();
    pacer loop_pacer;
-  loop_pacer.set_period_ns(20000000); // Default : 20000000
+   loop_pacer.set_period_ns(20000000); // Default : 20000000
   
-  char path[] = "/home/robin/minimu9/minimu9-ahrs/results1bis.txt";
-    int l_max=0;
-	char buffer[MAX_CHAR_PER_LINE];
-    DATA data;
-
-
-	FILE * results=fopen(path,"rt");
+   //char path[] = "/home/robin/instantWave/minimu9/tests/robot/results1bis.txt";
+   int l_max=0;
+   char buffer[MAX_CHAR_PER_LINE];
+   DATA data;
+   FILE * results=fopen(path,"rt");
 
 	if(results)
 	{
@@ -284,9 +298,7 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
 			fgets(buffer,MAX_CHAR_PER_LINE,results);
 			l_max++; //Counting the number of lines of the file 
 		}
-
 	}
-
 	fclose(results);
 	
 	data.m_x = (int32_t*)malloc(l_max*sizeof(float));
@@ -302,13 +314,13 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
     imu.retrieve(path, &data, l_max);
 	imu.measure_offsets_conv(data.g_x, data.g_y, data.g_z);			
 	quaternion rotation = quaternion::Identity();
-	  auto start = std::chrono::steady_clock::now();
+	auto start = std::chrono::steady_clock::now();
 
         for(int i=0;i<l_max-1;i++)
 		{
-			 auto last_start = start;
-			 start = std::chrono::steady_clock::now();
-			 std::chrono::nanoseconds duration = start - last_start;
+			auto last_start = start;
+			start = std::chrono::steady_clock::now();
+			std::chrono::nanoseconds duration = start - last_start;
 		    float dt = duration.count() / 1e9;
 	        if (dt < 0){ throw std::runtime_error("Time went backwards."); }
 		 	//cout << data.m_x[i] << data.m_y[i] << data.m_z[i] << data.a_x[i] << data.a_y[i] << data.a_z[i] << data.g_x[i] << data.g_y[i] << data. g_z[i] << endl;
@@ -332,9 +344,7 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
 			std::cout << "   ";
 			std::cout << acceleration << "   " <<magnetic_field << std::endl;
 		    loop_pacer.pace();
-
-		}
-  
+		} 
 }
 
 int main_with_exceptions(int argc, char **argv)
@@ -417,7 +427,26 @@ int main_with_exceptions(int argc, char **argv)
   }
   else if (options.mode == "conversion")
   {
-	ahrs_conversion(imu, &fuse_default, &output_matrix, &output_quaternion, &output_euler); 
+	char path[200] = "";  
+	cout << " Please write down the ABSOLUTE path of the file to convert " << endl;
+	cout << "ex : home/.../.../.../file.txt" << endl;
+	cout << "PATH = " ;
+	fgets(path, sizeof(path), stdin);
+	clean(path,stdin);
+	
+	FILE* test_exist = fopen(path,"r+");
+	
+	while(test_exist == NULL)
+	{
+		cout << "The file doesn't exist or the path is wrong." << endl;
+		cout << "Please try again !" << endl;
+		cout << "PATH =  " ;
+		fgets(path, sizeof(path), stdin);
+		clean(path,stdin);
+		test_exist = fopen(path,"r+");
+	}
+	ahrs_conversion(imu, &fuse_default, &output_matrix, &output_quaternion, &output_euler, path); 
+	
   }
   else if (options.mode == "gyro-only")
   {
@@ -458,6 +487,7 @@ int main(int argc, char ** argv)
     return 9;
   }
 }
+
 
 
 //=====================================================================================================

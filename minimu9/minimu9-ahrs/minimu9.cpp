@@ -10,7 +10,6 @@
 
 #define SEP					" "
 #define CMAX				9
-#define LMAX				4500
 
 typedef struct DATA DATA;
 
