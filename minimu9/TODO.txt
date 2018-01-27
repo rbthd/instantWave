@@ -1,5 +1,0 @@
-- Implement the possibility to easily modify the settings
-of the simulation
-
-- Correlation test by installing the IMU on a robotic arm
-
