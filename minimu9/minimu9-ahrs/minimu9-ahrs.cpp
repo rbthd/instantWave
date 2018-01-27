@@ -23,6 +23,159 @@
 #include <string.h>
 
 
+//=====================================================================================================
+// MadgwickAHRS.c
+//=====================================================================================================
+//
+// Implementation of Madgwick's IMU and AHRS algorithms.
+// See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
+//
+// Date			Author          Notes
+// 29/09/2011	SOH Madgwick    Initial release
+// 02/10/2011	SOH Madgwick	Optimised for reduced CPU load
+// 19/02/2012	SOH Madgwick	Magnetometer measurement is normalised
+//
+//=====================================================================================================
+//---------------------------------------------------------------------------------------------------
+// Definitions
+
+ #define sampleFreq	50.0f		// sample frequency in Hz (was 512 Hz)
+ #define betaDef		0.1f		// 2 * proportional gain
+
+ //---------------------------------------------------------------------------------------------------
+ // Variable definitions
+
+ volatile float beta = betaDef;								// 2 * proportional gain (Kp)
+ volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;	// quaternion of sensor frame relative to auxiliary frame
+
+ //---------------------------------------------------------------------------------------------------
+ // Function declarations
+
+ float invSqrt(float x);
+
+ //====================================================================================================
+ // Functions
+
+ //---------------------------------------------------------------------------------------------------
+ // AHRS algorithm update
+
+ quaternion MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
+	 float recipNorm;
+	 float s0, s1, s2, s3;
+	 float qDot1, qDot2, qDot3, qDot4;
+	 float hx, hy;
+	 float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+
+     //std::cout << "angular_x =" << gx << std::endl;
+
+
+	 // Rate of change of quaternion from gyroscope
+	 qDot1 = 0.5f * (-q1 * gx - q2 * gy - q3 * gz);
+	 qDot2 = 0.5f * (q0 * gx + q2 * gz - q3 * gy);
+	 qDot3 = 0.5f * (q0 * gy - q1 * gz + q3 * gx);
+	 qDot4 = 0.5f * (q0 * gz + q1 * gy - q2 * gx);
+
+	 // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
+	 if(!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
+
+		 // Normalise accelerometer measurement
+		 recipNorm = invSqrt(ax * ax + ay * ay + az * az);
+		 ax *= recipNorm;
+		 ay *= recipNorm;
+		 az *= recipNorm;   
+
+		 // Normalise magnetometer measurement
+		 recipNorm = invSqrt(mx * mx + my * my + mz * mz);
+		 mx *= recipNorm;
+		 my *= recipNorm;
+		 mz *= recipNorm;
+
+		 // Auxiliary variables to avoid repeated arithmetic
+		 _2q0mx = 2.0f * q0 * mx;
+		 _2q0my = 2.0f * q0 * my;
+		 _2q0mz = 2.0f * q0 * mz;
+		 _2q1mx = 2.0f * q1 * mx;
+		 _2q0 = 2.0f * q0;
+		 _2q1 = 2.0f * q1;
+		 _2q2 = 2.0f * q2;
+		 _2q3 = 2.0f * q3;
+		 _2q0q2 = 2.0f * q0 * q2;
+		 _2q2q3 = 2.0f * q2 * q3;
+		 q0q0 = q0 * q0;
+		 q0q1 = q0 * q1;
+		 q0q2 = q0 * q2;
+		 q0q3 = q0 * q3;
+		 q1q1 = q1 * q1;
+		 q1q2 = q1 * q2;
+		 q1q3 = q1 * q3;
+		 q2q2 = q2 * q2;
+		 q2q3 = q2 * q3;
+		 q3q3 = q3 * q3;
+
+		 // Reference direction of Earth's magnetic field
+		 hx = mx * q0q0 - _2q0my * q3 + _2q0mz * q2 + mx * q1q1 + _2q1 * my * q2 + _2q1 * mz * q3 - mx * q2q2 - mx * q3q3;
+		 hy = _2q0mx * q3 + my * q0q0 - _2q0mz * q1 + _2q1mx * q2 - my * q1q1 + my * q2q2 + _2q2 * mz * q3 - my * q3q3;
+		 _2bx = sqrt(hx * hx + hy * hy);
+		 _2bz = -_2q0mx * q2 + _2q0my * q1 + mz * q0q0 + _2q1mx * q3 - mz * q1q1 + _2q2 * my * q3 - mz * q2q2 + mz * q3q3;
+		 _4bx = 2.0f * _2bx;
+		 _4bz = 2.0f * _2bz;
+
+		 // Gradient decent algorithm corrective step
+		 s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz * q2 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q3 + _2bz * q1) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q2 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+		 s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q1 * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * q3 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q2 + _2bz * q0) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q3 - _4bz * q1) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+		 s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q2 * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + (-_4bx * q2 - _2bz * q0) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q1 + _2bz * q3) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q0 - _4bz * q2) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+		 s3 = _2q1 * (2.0f * q1q3 - _2q0q2 - ax) + _2q2 * (2.0f * q0q1 + _2q2q3 - ay) + (-_4bx * q3 + _2bz * q1) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q0 + _2bz * q2) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q1 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+		 recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
+		 s0 *= recipNorm;
+		 s1 *= recipNorm;
+		 s2 *= recipNorm;
+		 s3 *= recipNorm;
+
+		 // Apply feedback step
+		 qDot1 -= beta * s0;
+		 qDot2 -= beta * s1;
+		 qDot3 -= beta * s2;
+		 qDot4 -= beta * s3;
+	 }
+
+	 // Integrate rate of change of quaternion to yield quaternion
+	 q0 += qDot1 * (1.0f / sampleFreq);
+	 q1 += qDot2 * (1.0f / sampleFreq);
+	 q2 += qDot3 * (1.0f / sampleFreq);
+	 q3 += qDot4 * (1.0f / sampleFreq);
+
+	 // Normalise quaternion
+	 recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+	 q0 *= recipNorm;
+	 q1 *= recipNorm;
+	 q2 *= recipNorm;
+	 q3 *= recipNorm;
+	
+	//q0bis = q0;
+	//q1bis=q1;
+	//q2bis=q2;
+	//q3bis=q3;
+	
+
+	quaternion quat((const float)q0, (const float)q1, (const float)q2, (const float)q3); //coeff are casted to match Eigen definition of quaternion's creator
+	return quat;
+ }
+ //---------------------------------------------------------------------------------------------------
+ //END OF ALGORITHM
+ //---------------------------------------------------------------------------------------------------
+ // Fast inverse square-root
+ // See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
+
+ float invSqrt(float x) {
+	float halfx = 0.5f * x;
+	float y = x;
+	long i = *(long*)&y;
+	i = 0x5f3759df - (i>>1);
+	y = *(float*)&i;
+	y = y * (1.5f - (halfx * y * y));
+	return y;
+ }
+
 void clean(char*buffer, FILE *fp)
 {
 	char *p = strchr(buffer,'\n');
@@ -141,8 +294,12 @@ void rotate(quaternion & rotation, const vector & w, float dt)
 {
   // Multiply by first order approximation of the
   // quaternion representing this rotation.
+  //std::cout << "QUATERNION 2 : " << rotation << endl;
   rotation *= quaternion(1, w(0)*dt/2, w(1)*dt/2, w(2)*dt/2);
+  //std::cout << "QUATERNION 3 : " << rotation << endl;
   rotation.normalize();
+  //std::cout << "QUATERNION 4 : " << rotation << endl;
+
   //std::cout << "QUATERNION FUSED =" << rotation << std::endl;
 }
 
@@ -166,7 +323,7 @@ void fuse_default(quaternion & rotation, float dt, const vector & angular_veloci
 
     matrix rotation_compass = rotation_from_compass(acceleration, magnetic_field);
     matrix rotation_matrix = rotation.toRotationMatrix();
-    //std::cout << "QUATERNION: " << rotation << std::endl;
+   // std::cout << "QUATERNION: " << rotation << std::endl;
     //std::cout << "ROTATION MAT :" ;
     //std::cout << rotation_matrix << std::endl ;
 
@@ -190,7 +347,6 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
   // The quaternion that can convert a vector in body coordinates
   // to ground coordinates when it its changed to a matrix.
   quaternion rotation = quaternion::Identity();
-  //quaternion madgwick = quaternion::Identity();
 
   // Set up a timer that expires every 20 ms.
   pacer loop_pacer;
@@ -208,24 +364,11 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
     vector angular_velocity = imu.read_gyro();
     vector acceleration = imu.read_acc();
     vector magnetic_field = imu.read_mag();
-    
-    //const float angular_x = angular_velocity(0);
-    //const float angular_y = angular_velocity(1);
-    //const float angular_z = angular_velocity(2);
-    //const float acc_x = acceleration(0);
-	//const float acc_y = acceleration(1);
-	//const float acc_z = acceleration(2);
-	//const float mag_x = magnetic_field(0);
-	//const float mag_y = magnetic_field(1);
-	//const float mag_z = magnetic_field(2);
-	
-	//madgwick = MadgwickAHRSupdate(angular_x, angular_y, angular_z, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z);
-		
+    		
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
-    
+ 
     output(rotation);
-    //std::cout << "  " << acceleration << "  " << magnetic_field << std::endl << std::endl;
-
+    std::cout << "  " << acceleration << "  " << magnetic_field << std::endl << std::endl;
     loop_pacer.pace();
   }
 }
@@ -240,11 +383,13 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
   // The quaternion that can convert a vector in body coordinates
   // to ground coordinates when it its changed to a matrix.
   quaternion rotation = quaternion::Identity();
+  quaternion madgwick = quaternion::Identity();
 
   // Set up a timer that expires every 20 ms.
   pacer loop_pacer;
   loop_pacer.set_period_ns(20000000); // Default : 20000000
 
+int i=0;
 
   auto start = std::chrono::steady_clock::now();
   while(1)
@@ -255,25 +400,52 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
     float dt = duration.count() / 1e9;
     if (dt < 0){ throw std::runtime_error("Time went backwards."); }
 
-    vector angular_velocity = imu.read_gyro();
-    vector acceleration = imu.read_acc();
-    vector magnetic_field = imu.read_mag();
-           
-    //ADD Madgwick algo here
+	if(i==2000){break;}
 
+    vector angular_velocity = imu.read_gyro_all();
+    vector acceleration = imu.read_acc_all();
+    vector magnetic_field = imu.read_mag_all();
+    
+    i++;
+    
+	//imu.read_acc_raw();
+	//imu.read_gyro_raw();
+	//imu.read_mag_raw();       
+
+    
+    // MADGWICK ALGO VARIABLES
+    const float angular_x = angular_velocity(0);
+    const float angular_y = angular_velocity(1);
+    const float angular_z = angular_velocity(2);
+    
+    const float acc_x = acceleration(0);
+	const float acc_y = acceleration(1);
+	const float acc_z = acceleration(2);
+	
+	const float mag_x = magnetic_field(0);
+	const float mag_y = magnetic_field(1);
+	const float mag_z = magnetic_field(2);
+	//*************************************//
+	
+	//madgwick = MadgwickAHRSupdate(angular_x, angular_y, angular_z, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z);
+    //std::cout << "Mad quat1 : " << madgwick << endl;
+	//matrix madgwick_matrix = madgwick.toRotationMatrix();
+	
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
 	//std::cout << "OUTPUT1 : " ;
     output(rotation);
-    std::cout << "   ";
-    //std::cout << "OUTPUT2 : " ;
+    //std::cout << madgwick_matrix  << endl;
+    std::cout << "   " ;
+    //std::cout << "Ori quat : " << " " ;
     output2(rotation);
     std::cout << "   " ;
     //std::cout << "OUTPUT3 : " ;
     output3(rotation);
     std::cout << "   ";
     std::cout << acceleration << "  " << magnetic_field << std::endl;
-    
+    //std::cout << "Mad quat : " << madgwick << endl;
+
     loop_pacer.pace();
   }
 }
@@ -487,156 +659,3 @@ int main(int argc, char ** argv)
     return 9;
   }
 }
-
-
-
-//=====================================================================================================
-// MadgwickAHRS.c
-//=====================================================================================================
-//
-// Implementation of Madgwick's IMU and AHRS algorithms.
-// See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
-//
-// Date			Author          Notes
-// 29/09/2011	SOH Madgwick    Initial release
-// 02/10/2011	SOH Madgwick	Optimised for reduced CPU load
-// 19/02/2012	SOH Madgwick	Magnetometer measurement is normalised
-//
-//=====================================================================================================
-//---------------------------------------------------------------------------------------------------
-// Definitions
-
-//~ #define sampleFreq	1660.0f		// sample frequency in Hz (was 512 Hz)
-//~ #define betaDef		0.1f		// 2 * proportional gain
-
-//~ //---------------------------------------------------------------------------------------------------
-//~ // Variable definitions
-
-//~ volatile float beta = betaDef;								// 2 * proportional gain (Kp)
-//~ volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;	// quaternion of sensor frame relative to auxiliary frame
-
-//~ //---------------------------------------------------------------------------------------------------
-//~ // Function declarations
-
-//~ float invSqrt(float x);
-
-//~ //====================================================================================================
-//~ // Functions
-
-//~ //---------------------------------------------------------------------------------------------------
-//~ // AHRS algorithm update
-
-//~ quaternion MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
-	//~ float recipNorm;
-	//~ float s0, s1, s2, s3;
-	//~ float qDot1, qDot2, qDot3, qDot4;
-	//~ float hx, hy;
-	//~ float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
-	//~ quaternion quat = quaternion::Identity();
-
-    //~ std::cout << "angular_x =" << gx << std::endl;
-
-
-	//~ // Rate of change of quaternion from gyroscope
-	//~ qDot1 = 0.5f * (-q1 * gx - q2 * gy - q3 * gz);
-	//~ qDot2 = 0.5f * (q0 * gx + q2 * gz - q3 * gy);
-	//~ qDot3 = 0.5f * (q0 * gy - q1 * gz + q3 * gx);
-	//~ qDot4 = 0.5f * (q0 * gz + q1 * gy - q2 * gx);
-
-	//~ // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-	//~ if(!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
-
-		//~ // Normalise accelerometer measurement
-		//~ recipNorm = invSqrt(ax * ax + ay * ay + az * az);
-		//~ ax *= recipNorm;
-		//~ ay *= recipNorm;
-		//~ az *= recipNorm;   
-
-		//~ // Normalise magnetometer measurement
-		//~ recipNorm = invSqrt(mx * mx + my * my + mz * mz);
-		//~ mx *= recipNorm;
-		//~ my *= recipNorm;
-		//~ mz *= recipNorm;
-
-		//~ // Auxiliary variables to avoid repeated arithmetic
-		//~ _2q0mx = 2.0f * q0 * mx;
-		//~ _2q0my = 2.0f * q0 * my;
-		//~ _2q0mz = 2.0f * q0 * mz;
-		//~ _2q1mx = 2.0f * q1 * mx;
-		//~ _2q0 = 2.0f * q0;
-		//~ _2q1 = 2.0f * q1;
-		//~ _2q2 = 2.0f * q2;
-		//~ _2q3 = 2.0f * q3;
-		//~ _2q0q2 = 2.0f * q0 * q2;
-		//~ _2q2q3 = 2.0f * q2 * q3;
-		//~ q0q0 = q0 * q0;
-		//~ q0q1 = q0 * q1;
-		//~ q0q2 = q0 * q2;
-		//~ q0q3 = q0 * q3;
-		//~ q1q1 = q1 * q1;
-		//~ q1q2 = q1 * q2;
-		//~ q1q3 = q1 * q3;
-		//~ q2q2 = q2 * q2;
-		//~ q2q3 = q2 * q3;
-		//~ q3q3 = q3 * q3;
-
-		//~ // Reference direction of Earth's magnetic field
-		//~ hx = mx * q0q0 - _2q0my * q3 + _2q0mz * q2 + mx * q1q1 + _2q1 * my * q2 + _2q1 * mz * q3 - mx * q2q2 - mx * q3q3;
-		//~ hy = _2q0mx * q3 + my * q0q0 - _2q0mz * q1 + _2q1mx * q2 - my * q1q1 + my * q2q2 + _2q2 * mz * q3 - my * q3q3;
-		//~ _2bx = sqrt(hx * hx + hy * hy);
-		//~ _2bz = -_2q0mx * q2 + _2q0my * q1 + mz * q0q0 + _2q1mx * q3 - mz * q1q1 + _2q2 * my * q3 - mz * q2q2 + mz * q3q3;
-		//~ _4bx = 2.0f * _2bx;
-		//~ _4bz = 2.0f * _2bz;
-
-		//~ // Gradient decent algorithm corrective step
-		//~ s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz * q2 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q3 + _2bz * q1) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q2 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
-		//~ s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q1 * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * q3 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q2 + _2bz * q0) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q3 - _4bz * q1) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
-		//~ s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q2 * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + (-_4bx * q2 - _2bz * q0) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q1 + _2bz * q3) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q0 - _4bz * q2) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
-		//~ s3 = _2q1 * (2.0f * q1q3 - _2q0q2 - ax) + _2q2 * (2.0f * q0q1 + _2q2q3 - ay) + (-_4bx * q3 + _2bz * q1) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q0 + _2bz * q2) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q1 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
-		//~ recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
-		//~ s0 *= recipNorm;
-		//~ s1 *= recipNorm;
-		//~ s2 *= recipNorm;
-		//~ s3 *= recipNorm;
-
-		//~ // Apply feedback step
-		//~ qDot1 -= beta * s0;
-		//~ qDot2 -= beta * s1;
-		//~ qDot3 -= beta * s2;
-		//~ qDot4 -= beta * s3;
-	//~ }
-
-	//~ // Integrate rate of change of quaternion to yield quaternion
-	//~ q0 += qDot1 * (1.0f / sampleFreq);
-	//~ q1 += qDot2 * (1.0f / sampleFreq);
-	//~ q2 += qDot3 * (1.0f / sampleFreq);
-	//~ q3 += qDot4 * (1.0f / sampleFreq);
-
-	//~ // Normalise quaternion
-	//~ recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-	//~ q0 *= recipNorm;
-	//~ q1 *= recipNorm;
-	//~ q2 *= recipNorm;
-	//~ q3 *= recipNorm;
-	
-	    //~ std::cout << "q0 =" << q0 << std::endl;
-
-	
-	//~ //quat = Eigen::Quaternionf(q0, q1, q2, q3);
-	//~ return quat;
-//~ }
-//~ //---------------------------------------------------------------------------------------------------
-//~ //END OF ALGORITHM
-//~ //---------------------------------------------------------------------------------------------------
-//~ // Fast inverse square-root
-//~ // See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
-
-//~ float invSqrt(float x) {
-	//~ float halfx = 0.5f * x;
-	//~ float y = x;
-	//~ long i = *(long*)&y;
-	//~ i = 0x5f3759df - (i>>1);
-	//~ y = *(float*)&i;
-	//~ y = y * (1.5f - (halfx * y * y));
-	//~ return y;
-//~ }

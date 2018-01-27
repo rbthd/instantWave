@@ -12,7 +12,7 @@ namespace lsm6
 
   enum i2c_addr
   {
-    SA0_LOW_ADDR = 0x6A,
+    SA0_LOW_ADDR = 0x6B,
     SA0_HIGH_ADDR = 0x6B,
   };
 

@@ -6,8 +6,6 @@
 // raw vectors.
 
 #include "imu.h"
-#include "lsm303.h"
-#include "l3g.h"
 #include "lsm6.h"
 #include "lis3mdl.h"
 #include "sensor_set.h"
@@ -17,8 +15,6 @@ namespace minimu9
 {
   // Represents the sensors of the MinIMU-9 and how to communicate with them.
   struct comm_config {
-    lsm303::comm_config lsm303;
-    l3g::comm_config l3g;
     lis3mdl::comm_config lis3mdl;
     lsm6::comm_config lsm6;
   };
@@ -36,12 +32,15 @@ namespace minimu9
     comm_config config;
     lsm6::handle lsm6;
     lis3mdl::handle lis3mdl;
-    lsm303::handle lsm303;
-    l3g::handle l3g;
+
 
     virtual void read_acc_raw();
     virtual void read_mag_raw();
     virtual void read_gyro_raw();
+
+    virtual void read_acc_raw_all();
+    virtual void read_gyro_raw_all();
+    virtual void read_mag_raw_all();
 
     virtual float get_acc_scale() const;
     virtual float get_gyro_scale() const;
@@ -49,6 +48,10 @@ namespace minimu9
     virtual vector read_acc();
     virtual vector read_mag();
     virtual vector read_gyro();
+    
+    virtual vector read_acc_all();
+    virtual vector read_gyro_all();
+    virtual vector read_mag_all();
     
     virtual vector read_acc_conv(int32_t a_x, int32_t a_y, int32_t a_z);
     virtual vector read_mag_conv(int32_t m_x, int32_t m_y, int32_t m_z);

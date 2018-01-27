@@ -34,6 +34,10 @@ public:
   virtual void read_acc_raw() = 0;
   virtual void read_mag_raw() = 0;
   virtual void read_gyro_raw() = 0;
+  
+  virtual void read_acc_raw_all() = 0;
+  virtual void read_gyro_raw_all() = 0;
+  virtual void read_mag_raw_all() = 0;
 
   virtual float get_acc_scale() const = 0;
   virtual float get_gyro_scale() const = 0;
@@ -48,6 +52,10 @@ public:
   virtual vector read_mag() = 0;  // In body coords, scaled to -1..1 range
   virtual vector read_acc() = 0;  // In body coords, with units = g
   virtual vector read_gyro() = 0; // In body coords, with units = rad/sec
+  
+  virtual vector read_acc_all() = 0;
+  virtual vector read_gyro_all() = 0;
+  virtual vector read_mag_all() = 0;
   
   virtual vector read_mag_conv(int32_t m_x, int32_t m_y, int32_t m_z) = 0;  // In body coords, scaled to -1..1 range
   virtual vector read_acc_conv(int32_t a_x, int32_t a_y, int32_t a_z) = 0;  // In body coords, with units = g
