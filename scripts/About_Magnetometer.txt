@@ -1,0 +1,39 @@
+Remarks about the magnetometer : 
+
+It seems that the longer the simulation is, the more accurate
+the magnetometer is.
+Example: the magnitude of the vector which is supposed to be closed to 
+		 1g most of the time, give better results when the simulation
+		 is longer.
+		 For 3s -> Around 0.57 (seems normal since it's the init period)
+		 For 20s -> Around 1.33
+		 For 60s -> 1.11871
+		 
+
+
+=====================================================================
+
+Calibration 
+
+Calibration scripts have been modified to produce not hidden calibration
+files. 
+Those output files are saved in /home/robin/minimu9
+Change minimu9.cpp to have corresponding paths
+
+2D & 3D graphs are available.
+
+----------------------------------------
+
+Adding the magnetic declination : 
+
+1) Check www.magnetic-declination.com
+2) Go to www.wolframalpha.com/input/?i=(1°+13%27)+in+radians
+	where 1°13' is the declination of the place I currently am 
+	(Polytech Montpellier - 14th building)
+	
+3) I've added it to yaw value : 
+	a) go to minimu9-ahrs.cpp
+	b) go to void output_euler(quaternion & rotation)
+	c) isolate the yaw value from the euler vector
+	d) add the declination (+ or - is important and depends on your own
+							declination)
