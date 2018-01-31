@@ -1,0 +1,716 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue128;\red255\green255\blue255;\red0\green0\blue0;
+\red0\green128\blue0;\red255\green255\blue0;}
+{\*\expandedcolortbl;;\csgenericrgb\c0\c0\c50196;\csgenericrgb\c100000\c100000\c100000;\csgenericrgb\c0\c0\c0;
+\csgenericrgb\c0\c50196\c0;\csgenericrgb\c100000\c100000\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs22 \cf2 \cb3 Sub\cf4  import_csv()\
+\cf5 '\
+' import_csv Macro\
+'\
+\cf0 \
+\cf5 '\
+\cf4     \cf2 With\cf4  ActiveSheet.QueryTables.Add(Connection:= _\
+        "TEXT;/Users/robintherond/Documents/Polytech/PIFE/R\'e9sultas-bras-robot/results1bis_corrected.csv" _\
+        , Destination:=Range("A2"))\
+        .Name = "results1bis_corrected"\
+        .FieldNames = \cf2 True\
+\cf4         .RowNumbers = \cf2 False\
+\cf4         .FillAdjacentFormulas = \cf2 False\
+\cf4         .RefreshOnFileOpen = \cf2 False\
+\cf4         .BackgroundQuery = \cf2 True\
+\cf4         .RefreshStyle = xlInsertDeleteCells\
+        .SavePassword = \cf2 False\
+\cf4         .SaveData = \cf2 True\
+\cf4         .AdjustColumnWidth = \cf2 True\
+\cf4         .TextFilePromptOnRefresh = \cf2 False\
+\cf4         .TextFilePlatform = xlMacintosh\
+        .TextFileStartRow = 1\
+        .TextFileParseType = xlDelimited\
+        .TextFileTextQualifier = xlTextQualifierDoubleQuote\
+        .TextFileConsecutiveDelimiter = \cf2 True\
+\cf4         .TextFileTabDelimiter = \cf2 False\
+\cf4         .TextFileSemicolonDelimiter = \cf2 False\
+\cf4         .TextFileCommaDelimiter = \cf2 False\
+\cf4         .TextFileSpaceDelimiter = \cf2 True\
+\cf4         .TextFileColumnDataTypes = Array(9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, _\
+        1, 1)\
+        .Refresh BackgroundQuery:=\cf2 False\
+\cf4         .UseListObject = \cf2 False\
+\cf4     \cf2 End\cf4  \cf2 With\
+\cf4     Range("A1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_x1"\
+    Range("B1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_x2"\
+    Range("C1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_x3"\
+    Range("D1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_y1"\
+    Range("E1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_y2"\
+    Range("F1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_y3"\
+    Range("G1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_z1"\
+    Range("H1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_z2"\
+    Range("I1").Select\
+    ActiveCell.FormulaR1C1 = "rotation_matrix_z3"\
+    Range("J1").Select\
+    ActiveCell.FormulaR1C1 = "quat1"\
+    Range("K1").Select\
+    ActiveCell.FormulaR1C1 = "quat2"\
+    Range("L1").Select\
+    ActiveCell.FormulaR1C1 = "quat3"\
+    Range("M1").Select\
+    ActiveCell.FormulaR1C1 = "quat4"\
+    Range("N1").Select\
+    ActiveCell.FormulaR1C1 = "yaw"\
+    Range("O1").Select\
+    ActiveCell.FormulaR1C1 = "pitch"\
+    Range("P1").Select\
+    ActiveCell.FormulaR1C1 = "roll"\
+    Range("Q1").Select\
+    ActiveCell.FormulaR1C1 = "acc_x"\
+    Range("R1").Select\
+    ActiveCell.FormulaR1C1 = "acc_y"\
+    Range("S1").Select\
+    ActiveCell.FormulaR1C1 = "acc_z"\
+    Range("T1").Select\
+    ActiveCell.FormulaR1C1 = "mag_x"\
+    Range("U1").Select\
+    ActiveCell.FormulaR1C1 = "mag_y"\
+    Range("V1").Select\
+    ActiveCell.FormulaR1C1 = "mag_z"\
+    Range("W1").Select\
+\cf0 \
+\cf4     \cf5 'Call replace_dots\
+\cf2 End\cf4  \cf2 Sub\
+Sub\cf4  plot_quat1()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("I:I").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$J:$J")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Quaternion 1"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("A1").Top\
+    .Left = Range("A1").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_quat2()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("K:K").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$K:$K")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Quaternion 2"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("A15").Top\
+    .Left = Range("A15").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_quat3()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("K:K").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$L:$L")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Quaternion 3"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("A29").Top\
+    .Left = Range("A29").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf2 End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_quat4()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("J:D").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$M:$M")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Quaternion 4"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("L1").Top\
+    .Left = Range("L1").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf2 End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_yaw()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("N:N").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$N:$N")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "YAW"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("L15").Top\
+    .Left = Range("L15").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_pitch()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("O:O").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$O:$O")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "PITCH"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("L29").Top\
+    .Left = Range("L29").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_roll()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("P:P").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$P:$P")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "ROLL"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("S1").Top\
+    .Left = Range("S1").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_acc_x()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("Q:Q").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$Q:$Q")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Accelerometer - X axis"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("S15").Top\
+    .Left = Range("S15").Left\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_acc_y()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("R:R").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$R:$R")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Accelerometer - Y axis"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("S29").Top\
+    .Left = Range("S29").Left\
+\cf2 End\cf4  \cf2 With\
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_acc_z()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("S:S").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$S:$S")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Accelerometer - Z axis"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("S29").Top\
+    .Left = Range("S29").Left\
+\cf2 End\cf4  \cf2 With\
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_mag_x()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("T:T").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$T:$T")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Magnetometer - X axis"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("S29").Top\
+    .Left = Range("S29").Left\
+\cf2 End\cf4  \cf2 With\
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_mag_y()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("U:U").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$U:$U")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Magnetometer - Y axis"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("S29").Top\
+    .Left = Range("S29").Left\
+\cf2 End\cf4  \cf2 With\
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_mag_z()\
+\cf5 '\
+' CREERGRAPHIQUE Macro\
+\cf0 \
+\cf5 '\
+\cf4 Application.ScreenUpdating = \cf2 False\
+\cf4     Columns("V:V").Select\
+    ActiveSheet.Shapes.AddChart.Select\
+    ActiveChart.SetSourceData Source:=Range("'Feuil1'!$V:$V")\
+    ActiveChart.ChartType = xlLine\
+    ActiveChart.ApplyLayout (3)\
+    \cf5 'ActiveChart.SeriesCollection(2).Select\
+\cf4     \cf5 'ActiveChart.SeriesCollection(1).ApplyDataLabels\
+\cf4     \cf2 With\cf4  ActiveChart.Axes(xlCategory)\
+    .HasTitle = \cf2 True\
+\cf4     .AxisTitle.Text = "Samples"\
+    \cf2 End\cf4  \cf2 With\
+\cf4    \cf2 With\cf4  chGraph\
+        \cf5 ' Affichage du titre\
+\cf4         ActiveChart.HasTitle = \cf2 True\
+\cf4         \cf5 ' Intitul\'e9\
+\cf4         ActiveChart.ChartTitle.Characters.Text = "Magnetometer - Z axis"\
+        \cf5 ' L\'e9gende en position haute\
+\cf4         ActiveChart.Legend.Position = xlLegendPositionTop\
+     \cf2 End\cf4  \cf2 With\
+With\cf4  ActiveChart.Parent\
+    .Top = Range("S29").Top\
+    .Left = Range("S29").Left\
+\cf2 End\cf4  \cf2 With\
+\cf4 Application.ScreenUpdating = \cf2 True\
+End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  erase_graph()\
+\cf5 '\
+' erase_graph Macro\
+'\
+\cf0 \
+\cf5 '\
+\cf2 For\cf4  \cf2 Each\cf4  Legraph \cf2 In\cf4  ActiveSheet.ChartObjects\
+    Legraph.Delete\
+\cf2 Next\
+\cf0 \
+\cf2 End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  plot_all()\
+\cf2 Call\cf4  plot_quat1\
+\cf2 Call\cf4  plot_quat2\
+\cf2 Call\cf4  plot_quat3\
+\cf2 Call\cf4  plot_quat4\
+\cf2 Call\cf4  plot_yaw\
+\cf2 Call\cf4  plot_pitch\
+\cf2 Call\cf4  plot_roll\
+\cf2 Call\cf4  plot_acc_x\
+\cf2 Call\cf4  plot_acc_y\
+\cf2 Call\cf4  plot_acc_z\
+\cf2 Call\cf4  plot_mag_x\
+\cf2 Call\cf4  plot_mag_y\
+\cf2 Call\cf4  plot_mag_z\
+\cf0 \
+\cf2 End\cf4  \cf2 Sub\
+\cf0 \
+\
+\
+\cf2 Sub\cf4  replace_dots()\
+\cf5 '\
+' replace_dots Macro\
+'\
+\cf0 \
+\cf5 '\
+\cf4     ExecuteExcel4Macro _\
+        "FORMULA.REPLACE(""."","","",2,1,FALSE,FALSE,,FALSE,FALSE,FALSE,FALSE)"\
+\cf2 End\cf4  \cf2 Sub\
+\cf0 \
+\cf2 Sub\cf4  smooth()\
+\cf2 Dim\cf4  FL1 \cf2 As\cf4  Worksheet, Cell \cf2 As\cf4  Range, NoCol \cf2 As\cf4  \cf2 Integer\
+Dim\cf4  NoLig \cf2 As\cf4  \cf2 Long\cf4 , DerLig \cf2 As\cf4  \cf2 Long\cf4 , Var \cf2 As\cf4  \cf2 Variant\
+Dim\cf4  temp, temp2 \cf2 As\cf4  \cf2 Long\cf4 , MyCheck\
+    \cf5 'Instance de la feuille qui permet d'utiliser FL1 partout dans\
+\cf4     \cf5 'le code \'e0 la place du nom de la feuille\
+\cf4     \cf2 Set\cf4  FL1 = Worksheets("Feuil1")\
+     \
+    \cf5 'D\'e9termine la derni\'e8re ligne renseign\'e9e de la feuille de calculs\
+\cf4     \cf5 '(Voir explication sur l'utilisation de Split en bas de cette discussion)\
+\cf4     DerLig = Split(FL1.UsedRange.Address, "$")(4)\
+     \
+    \cf5 'Fixe le N\'b0 de la colonne \'e0 lire\
+\cf4     NoCol = 16\
+     \
+    \cf5 'Utilisation du N\'b0 de ligne dans une boucle For ... Next\
+\cf4     \cf2 For\cf4  NoLig = 2 \cf2 To\cf4  DerLig\
+        \
+    Var = FL1.Cells(NoLig, NoCol)\
+    \cf5 'Pour tester : Affiche les variables dans la fen\'eatre Ex\'e9cution de VBA\
+\cf4      \cf2 If\cf4  Var > 0 \cf2 Then\
+\cf4         FL1.Cells(NoLig, NoCol).Select\
+        ActiveCell.Value = ActiveCell.Value - 180\
+     \cf2 End\cf4  \cf2 If\
+\cf0 \
+\cf4     \cf2 Next\
+\cf0 \
+\cf4         NoCol = 14\
+     \
+    \cf5 'Utilisation du N\'b0 de ligne dans une boucle For ... Next\
+\cf4     \cf2 For\cf4  NoLig = 2 \cf2 To\cf4  DerLig\
+        \
+    Var = FL1.Cells(NoLig, NoCol)\
+    \cf5 'Pour tester : Affiche les variables dans la fen\'eatre Ex\'e9cution de VBA\
+\cf4      \cf2 If\cf4  Var > 50 \cf2 Then\
+\cf4         FL1.Cells(NoLig, NoCol).Select\
+        ActiveCell.Value = 180 - ActiveCell.Value\
+     \cf2 End\cf4  \cf2 If\
+\cf0 \
+\cf4     \cf2 Next\
+\cf4     \cf2 Set\cf4  FL1 = \cf2 Nothing\
+\cf0 \
+\cf2 End\cf4  \cf2 Sub\
+\
+Sub\cf4  stat()\
+\cf5 '\
+' stat Macro\
+'\
+\cf0 \
+\cf5 '\
+\cf4     Columns("N:P").Select\
+    Selection.Copy\
+    Range("X1").Select\
+    ActiveSheet.Paste\
+    Range("X2:Z2").Select\
+    Application.CutCopyMode = \cf2 False\
+\cf4     Selection.Delete Shift:=xlUp\
+    Columns("X:X").Select\
+    ActiveWorkbook.Worksheets("Feuil1").Sort.SortFields.Clear\
+    ActiveWorkbook.Worksheets("Feuil1").Sort.SortFields.Add Key:=Range("X1"), _\
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal\
+    \cf2 With\cf4  ActiveWorkbook.Worksheets("Feuil1").Sort\
+        .SetRange Range("X2:X4444")\
+        .Header = xlGuess\
+        .MatchCase = \cf2 False\
+\cf4         .Orientation = xlTopToBottom\
+        .SortMethod = xlPinYin\
+        .Apply\
+    \cf2 End\cf4  \cf2 With\
+\cf4     Columns("Y:Y").Select\
+    ActiveWorkbook.Worksheets("Feuil1").Sort.SortFields.Clear\
+    ActiveWorkbook.Worksheets("Feuil1").Sort.SortFields.Add Key:=Range("Y1"), _\
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal\
+    \cf2 With\cf4  ActiveWorkbook.Worksheets("Feuil1").Sort\
+        .SetRange Range("Y2:Y4444")\
+        .Header = xlGuess\
+        .MatchCase = \cf2 False\
+\cf4         .Orientation = xlTopToBottom\
+        .SortMethod = xlPinYin\
+        .Apply\
+    \cf2 End\cf4  \cf2 With\
+\cf4     Columns("Z:Z").Select\
+    ActiveWorkbook.Worksheets("Feuil1").Sort.SortFields.Clear\
+    ActiveWorkbook.Worksheets("Feuil1").Sort.SortFields.Add Key:=Range("Z1"), _\
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal\
+    \cf2 With\cf4  ActiveWorkbook.Worksheets("Feuil1").Sort\
+        .SetRange Range("Z2:Z4444")\
+        .Header = xlGuess\
+        .MatchCase = \cf2 False\
+\cf4         .Orientation = xlTopToBottom\
+        .SortMethod = xlPinYin\
+        .Apply\
+    \cf2 End\cf4  \cf2 With\
+\cf4     Range("AA2").Select\
+    ActiveCell.FormulaR1C1 = "=AVERAGE(RC[-3]:X)"\
+    Range("AA2").Select\
+    ActiveCell.FormulaR1C1 = "=AVERAGE(RC[-3]:R[3798]C[-3])"\
+    Range("AA3").Select\
+    ActiveCell.FormulaR1C1 = "=STDEV(R[-1]C[-3]:R[3797]C[-3])"\
+    Range("AB2").Select\
+    ActiveCell.FormulaR1C1 = "=AVERAGE(RC[-3]:R[3798]C[-3])"\
+    Range("AB3").Select\
+    ActiveCell.FormulaR1C1 = "=STDEV(R[-1]C[-3]:R[3797]C[-3])"\
+    Range("AC2").Select\
+    ActiveCell.FormulaR1C1 = "=AVERAGE(RC[-3]:R[3798]C[-3])"\
+    Range("AC3").Select\
+    ActiveCell.FormulaR1C1 = "=STDEV(R[-1]C[-3]:Z)"\
+    Range("AC3").Select\
+    ActiveCell.FormulaR1C1 = "=STDEV(R[-1]C[-3]:R[3797]C[-3])"\
+    Range("AD2").Select\
+    ActiveCell.FormulaR1C1 = "=NORMDIST(R[-1]C[-6],R2C27,R3C27,FALSE)"\
+    Range("AD2").Select\
+    ActiveCell.FormulaR1C1 = "=NORMDIST(RC[-6],R2C27,R3C27,FALSE)"\
+    Range("AD2").Select\
+    Selection.AutoFill Destination:=Range("AD2:AD3800"), Type:=xlFillDefault\
+    Range("AD2:AD15").Select\
+    Range("AE2").Select\
+    ActiveCell.FormulaR1C1 = "=NORMDIST(R[1]C[-6],R2C28,R3C28,FALSE)"\
+    Range("AE2").Select\
+    Selection.AutoFill Destination:=Range("AE2:AE3800"), Type:=xlFillDefault\
+    Range("AE2:AE32").Select\
+    Range("AF2").Select\
+    ActiveCell.FormulaR1C1 = "=NORMDIST(RC[-6],R2C29,R3C29,FALSE)"\
+    Range("AF2").Select\
+    Selection.AutoFill Destination:=Range("AF2:AF3800"), Type:=xlFillDefault\
+    Range("AF2:AF34").Select\
+End Sub\
+\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf4 \cb6 Sub plot()\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \cb3 Dim\cf4  xaxis \cf2 As\cf4  Range\
+\cf2 Dim\cf4  yaxis \cf2 As\cf4  Range\
+\cf2 Set\cf4  xaxis = Range("$X$1", Range("$X$1").End(xlDown))\
+\cf2 Set yaxis = Range("$AD$2", Range("$AD$2").End(xlDown))\
+\cf0 \
+\cf2 Dim\cf4  c \cf2 As\cf4  Chart\
+\cf2 Set c = ActiveWorkbook.Charts.Add\
+Set c = c.Location(Where:=xlLocationAsObject, Name:="Stats")\
+With\cf4  c\
+    .ChartType = xlLine\
+    .Title = True\
+    \cf5 ' set other chart properties\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf2 Dim\cf4  s \cf2 As\cf4  Series\
+\cf2 Set\cf4  s = c.SeriesCollection.NewSeries\
+\cf2 With\cf4  s\
+    .Values = yaxis\
+    .XValues = xaxis\
+    \cf5 ' set other series properties\
+\cf2 End\cf4  \cf2 With\
+\cf0 \
+\cf2 End\cf4  \cf2 Sub\
+\
+\cf0 \
+\
+}
