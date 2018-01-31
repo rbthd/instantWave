@@ -6,3 +6,5 @@
 ahrs-visualizer-master/
 Calibration/
 Tests/
+.gitignore
+.DS_Store
