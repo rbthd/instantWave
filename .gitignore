@@ -3,7 +3,7 @@
 *.csv
 *.xls
 /Documentation/About_Magnetometer.txt
-ahrs-visualizer-master/
+#ahrs-visualizer-master/
 Calibration/
 Tests/
 .gitignore
