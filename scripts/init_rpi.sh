@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ## Purge system from unused programs
-sudo apt-get --purge remove wolfram-engine bluej greenfoot nodered nuscratch scratch sonic-pi libreoffice* claws-mail claws-mail-i18n minecraft-pi python-pygame
+sudo apt-get -y --purge remove wolfram-engine bluej greenfoot nodered nuscratch scratch sonic-pi libreoffice* claws-mail claws-mail-i18n minecraft-pi python-pygame
 
-sudo apt-get autoremove --purge
+sudo apt-get autoremove -y --purge
 
 sudo apt-get clean
 
@@ -20,16 +20,17 @@ sudo apt-get install -y netatalk
 
 sudo update-rc.d avahi-daemon defaults
 
-
-sudo echo "<?xml version= »1.0″ standalone=’no’?><!–*-nxml-*–>" >> /etc/avahi/services/afpd.service
-sudo echo "<!DOCTYPE service-group SYSTEM « avahi-service.dtd »>" >> /etc/avahi/services/afpd.service
-sudo echo "<service-group>" >> /etc/avahi/services/afpd.service
-sudo echo "<name replace-wildcards= »yes »>%h</name>" >> /etc/avahi/services/afpd.service
-sudo echo "<service>" >> /etc/avahi/services/afpd.service
-sudo echo "<type>_afpovertcp._tcp</type>" >> /etc/avahi/services/afpd.service
-sudo echo "<port>548</port>" >> /etc/avahi/services/afpd.service
-sudo echo "</service>" >> /etc/avahi/services/afpd.service
-sudo echo "</service-group>" >> /etc/avahi/services/afpd.service
+sudo su
+echo "<?xml version= »1.0″ standalone=’no’?><!–*-nxml-*–>" >> /etc/avahi/services/afpd.service
+echo "<!DOCTYPE service-group SYSTEM « avahi-service.dtd »>" >> /etc/avahi/services/afpd.service
+echo "<service-group>" >> /etc/avahi/services/afpd.service
+echo "<name replace-wildcards= »yes »>%h</name>" >> /etc/avahi/services/afpd.service
+echo "<service>" >> /etc/avahi/services/afpd.service
+echo "<type>_afpovertcp._tcp</type>" >> /etc/avahi/services/afpd.service
+echo "<port>548</port>" >> /etc/avahi/services/afpd.service
+echo "</service>" >> /etc/avahi/services/afpd.service
+echo "</service-group>" >> /etc/avahi/services/afpd.service
+exit
 
 sudo /etc/init.d/avahi-daemon restart
 
