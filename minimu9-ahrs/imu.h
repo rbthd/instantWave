@@ -48,8 +48,9 @@ public:
   int32_t m[3];
   int32_t a[3];
   int32_t g[3];
+  
+  int32_t p;
 
-	float p;
 
   // TODO: remove stuff below this point
 

@@ -56,7 +56,7 @@ minimu9::comm_config minimu9::auto_detect(const std::string & i2c_bus_name)
      for (uint8_t addr : addrs)
      {
        int result = bus.try_write_byte_and_read_byte(addr, lps25h::WHO_AM_I);
-       if (result == lis3mdl::LIS3MDL)
+       if (result == lps25h::LPS25H)
        {
          config.lps25h.use_sensor = true;
          config.lps25h.device = (lps25h::device_type)result;
@@ -67,6 +67,7 @@ minimu9::comm_config minimu9::auto_detect(const std::string & i2c_bus_name)
      }
   }
   return config;
+
 }
 
 sensor_set minimu9::config_sensor_set(const comm_config & config)
@@ -159,7 +160,6 @@ void minimu9::handle::enable()
   {
     lis3mdl.enable();
   }
-
   if (config.lps25h.use_sensor)
   {
     lps25h.enable();
@@ -195,7 +195,7 @@ void minimu9::handle::read_mag_raw()
   }
    else
   {
-    throw std::runtime_error("No magnetometer to read.");
+    throw std::runtime_error("No magnetometer to read in mode raw.");
   }
 }
 
@@ -208,7 +208,7 @@ void minimu9::handle::read_mag_raw_all()
   }
   else
   {
-    throw std::runtime_error("No magnetometer to read.");
+    throw std::runtime_error("No magnetometer to read in mode all.");
   }
 }
 
@@ -222,7 +222,7 @@ void minimu9::handle::read_acc_raw()
 
   else
   {
-    throw std::runtime_error("No accelerometer to read.");
+    throw std::runtime_error("No accelerometer to read in mode raw.");
   }
 }
 
@@ -235,7 +235,7 @@ void minimu9::handle::read_acc_raw_all()
   }
   else
   {
-    throw std::runtime_error("No accelerometer to read.");
+    throw std::runtime_error("No accelerometer to read in mode all.");
   }
 }
 
@@ -248,7 +248,7 @@ void minimu9::handle::read_gyro_raw()
   }
   else
   {
-    throw std::runtime_error("No gyro to read.");
+    throw std::runtime_error("No gyro to read in mode raw.");
   }
 }
 
@@ -261,7 +261,7 @@ void minimu9::handle::read_gyro_raw_all()
   }
   else
   {
-    throw std::runtime_error("No gyro to read.");
+    throw std::runtime_error("No gyro to read in mode all.");
   }
 }
 
@@ -274,8 +274,9 @@ float minimu9::handle::read_pressure_raw()
   }
   else
   {
-    throw std::runtime_error("No gyro to read.");
+    throw std::runtime_error("No barometer to read.");
   }
+  return p;
 }
 
 float minimu9::handle::get_acc_scale() const
@@ -304,7 +305,7 @@ void minimu9::handle::measure_offsets()
 {
   // LSM303 accelerometer: 8 g sensitivity.  3.9 mg/digit; 1 g = 256.
   gyro_offset = vector::Zero();
-  const int sampleCount = 511;
+  const int sampleCount = 50 ;//511 is best;
   for(int i = 0; i < sampleCount; i++)
   {
     read_gyro_raw();

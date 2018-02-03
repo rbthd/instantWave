@@ -350,7 +350,7 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
 
   // Set up a timer that expires every 20 ms.
   pacer loop_pacer;
-  loop_pacer.set_period_ns(20000000);
+  loop_pacer.set_period_ns(500000000);
 
   auto start = std::chrono::steady_clock::now();
   while(1)
@@ -360,17 +360,20 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
     std::chrono::nanoseconds duration = start - last_start;
     float dt = duration.count() / 1e9;
     if (dt < 0){ throw std::runtime_error("Time went backwards."); }
+    
+    vector acceleration = imu.read_acc();
 
     vector angular_velocity = imu.read_gyro();
-    vector acceleration = imu.read_acc();
     vector magnetic_field = imu.read_mag();
     
-    //float pressure = imu.read_pressure_raw();
+    float pressure_reg = imu.read_pressure_raw();
+	float pressure = pressure_reg/4096.00;
+	float altitude = (44330.8*(1-(pow((pressure)/1013.25,0.190263)))); //Compute actual altitude based on sea level
 
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
     output(rotation);
-    std::cout << "  " << acceleration << "  " << magnetic_field << "  "  << std::endl ;
+    std::cout << "  " << acceleration << "  " << magnetic_field << "       "  << pressure << "   "  << altitude << std::endl ;
     loop_pacer.pace();
   }
 }
@@ -391,7 +394,6 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
   pacer loop_pacer;
   loop_pacer.set_period_ns(20000000); // Default : 20000000
 
-int i=0;
 
   auto start = std::chrono::steady_clock::now();
   while(1)
@@ -407,17 +409,17 @@ int i=0;
     vector magnetic_field = imu.read_mag_all();
 
     // MADGWICK ALGO VARIABLES
-    const float angular_x = angular_velocity(0);
-    const float angular_y = angular_velocity(1);
-    const float angular_z = angular_velocity(2);
+    //const float angular_x = angular_velocity(0);
+    //const float angular_y = angular_velocity(1);
+    //const float angular_z = angular_velocity(2);
 
-    const float acc_x = acceleration(0);
-	const float acc_y = acceleration(1);
-	const float acc_z = acceleration(2);
+    //const float acc_x = acceleration(0);
+	//const float acc_y = acceleration(1);
+	//const float acc_z = acceleration(2);
 
-	const float mag_x = magnetic_field(0);
-	const float mag_y = magnetic_field(1);
-	const float mag_z = magnetic_field(2);
+	//const float mag_x = magnetic_field(0);
+	//const float mag_y = magnetic_field(1);
+	//const float mag_z = magnetic_field(2);
 	//*************************************//
 
 	//madgwick = MadgwickAHRSupdate(angular_x, angular_y, angular_z, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z);
@@ -531,7 +533,7 @@ int main_with_exceptions(int argc, char **argv)
 
   // Decide what sensors we want to use.
   sensor_set set;
-  set.mag = set.acc = set.gyro = true;
+  set.mag = set.acc = set.gyro = set.pressure = true;
 
   minimu9::comm_config config = minimu9::auto_detect(options.i2c_bus_name);
 
@@ -549,6 +551,10 @@ int main_with_exceptions(int argc, char **argv)
     if (missing.gyro)
     {
       std::cerr << "Error: No gyro found." << std::endl;
+    }
+    if (missing.pressure)
+    {
+      std::cerr << "Error: No barometer found." << std::endl;
     }
     std::cerr << "Error: Needed sensors are missing." << std::endl;
     return 1;
