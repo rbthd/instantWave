@@ -55,7 +55,7 @@ minimu9::comm_config minimu9::auto_detect(const std::string & i2c_bus_name)
        auto addrs = { lps25h::SA0_LOW_ADDR};
      for (uint8_t addr : addrs)
      {
-       int result = bus.try_write_byte_and_read_byte(addr, l::WHO_AM_I);
+       int result = bus.try_write_byte_and_read_byte(addr, lps25h::WHO_AM_I);
        if (result == lis3mdl::LIS3MDL)
        {
          config.lps25h.use_sensor = true;
@@ -144,7 +144,7 @@ void minimu9::handle::open(const comm_config & config)
 
   if (config.lps25h.use_sensor)
   {
-    lis3mdl.open(config.lps25h);
+    lps25h.open(config.lps25h);
   }
 }
 
@@ -169,12 +169,12 @@ void minimu9::handle::enable()
 void minimu9::handle::load_calibration()
 {
   wordexp_t expansion_result;
-  wordexp("/home/pi/instantWave/minimu9/minimu9-ahrs-cal", &expansion_result, 0);
+  wordexp("/home/pi/instantWave/minimu9-ahrs/minimu9-ahrs-cal", &expansion_result, 0);
 
   std::ifstream file(expansion_result.we_wordv[0]);
   if (file.fail())
   {
-    throw posix_error("Failed to open calibration file /home/pi/instantWave/minimu9/minimu9-ahrs-cal");
+    throw posix_error("Failed to open calibration file /home/pi/instantWave/minimu9-ahrs/minimu9-ahrs-cal");
   }
 
   file >> mag_min(0) >> mag_max(0)
@@ -182,7 +182,7 @@ void minimu9::handle::load_calibration()
        >> mag_min(2) >> mag_max(2);
   if (file.fail() || file.bad())
   {
-    throw std::runtime_error("Failed to parse calibration file /home/pi/instantWave/minimu9/minimu9-ahrs-cal");
+    throw std::runtime_error("Failed to parse calibration file /home/pi/instantWave/minimu9-ahrs/minimu9-ahrs-cal");
   }
 }
 
@@ -265,12 +265,12 @@ void minimu9::handle::read_gyro_raw_all()
   }
 }
 
-void minimu9::handle::read_pressure_raw()
+float minimu9::handle::read_pressure_raw()
 {
   if (config.lps25h.use_sensor)
   {
     lps25h.read();
-    p = lps25h.p; }
+    p = lps25h.p; 
   }
   else
   {

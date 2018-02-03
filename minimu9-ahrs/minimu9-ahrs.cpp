@@ -364,12 +364,13 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
     vector angular_velocity = imu.read_gyro();
     vector acceleration = imu.read_acc();
     vector magnetic_field = imu.read_mag();
-    float pressure = imu.read_pressure_raw();
+    
+    //float pressure = imu.read_pressure_raw();
 
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
     output(rotation);
-    std::cout << "  " << acceleration << "  " << magnetic_field << "  " << pressure << std::endl ;
+    std::cout << "  " << acceleration << "  " << magnetic_field << "  "  << std::endl ;
     loop_pacer.pace();
   }
 }
@@ -401,18 +402,9 @@ int i=0;
     float dt = duration.count() / 1e9;
     if (dt < 0){ throw std::runtime_error("Time went backwards."); }
 
-	if(i==2000){break;}
-
     vector angular_velocity = imu.read_gyro_all();
     vector acceleration = imu.read_acc_all();
     vector magnetic_field = imu.read_mag_all();
-
-    i++;
-
-	//imu.read_acc_raw();
-	//imu.read_gyro_raw();
-	//imu.read_mag_raw();
-
 
     // MADGWICK ALGO VARIABLES
     const float angular_x = angular_velocity(0);

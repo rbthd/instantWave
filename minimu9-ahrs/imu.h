@@ -35,7 +35,7 @@ public:
   virtual void read_mag_raw() = 0;
   virtual void read_gyro_raw() = 0;
 
-	virtual void read_pressure_raw() = 0;
+  virtual float read_pressure_raw() = 0;
 
 
   virtual void read_acc_raw_all() = 0;
