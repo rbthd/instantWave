@@ -82,7 +82,7 @@
 		 recipNorm = invSqrt(ax * ax + ay * ay + az * az);
 		 ax *= recipNorm;
 		 ay *= recipNorm;
-		 az *= recipNorm;   
+		 az *= recipNorm;
 
 		 // Normalise magnetometer measurement
 		 recipNorm = invSqrt(mx * mx + my * my + mz * mz);
@@ -150,12 +150,12 @@
 	 q1 *= recipNorm;
 	 q2 *= recipNorm;
 	 q3 *= recipNorm;
-	
+
 	//q0bis = q0;
 	//q1bis=q1;
 	//q2bis=q2;
 	//q3bis=q3;
-	
+
 
 	quaternion quat((const float)q0, (const float)q1, (const float)q2, (const float)q3); //coeff are casted to match Eigen definition of quaternion's creator
 	return quat;
@@ -236,12 +236,12 @@ void output_euler(quaternion & rotation)
 {
   vector euler =  (vector)(rotation.toRotationMatrix().eulerAngles(2, 1, 0)
                         * (180 / M_PI));
-  
+
   std::cout << euler;
-  //~ euler[0]+= 21.23/1000 *(180/M_PI);   //This was added to compensate the local magnetic declination        
+  //~ euler[0]+= 21.23/1000 *(180/M_PI);   //This was added to compensate the local magnetic declination
   //~ std::cout << " XXXXXXXX " << euler[0];
-  
-  
+
+
 }
 
 void stream_raw_values(imu & imu)
@@ -351,7 +351,7 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
   // Set up a timer that expires every 20 ms.
   pacer loop_pacer;
   loop_pacer.set_period_ns(20000000);
-  
+
   auto start = std::chrono::steady_clock::now();
   while(1)
   {
@@ -364,11 +364,12 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
     vector angular_velocity = imu.read_gyro();
     vector acceleration = imu.read_acc();
     vector magnetic_field = imu.read_mag();
-    		
+    float pressure = imu.read_pressure_raw();
+
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
- 
+
     output(rotation);
-    std::cout << "  " << acceleration << "  " << magnetic_field << std::endl << std::endl;
+    std::cout << "  " << acceleration << "  " << magnetic_field << "  " << pressure << std::endl ;
     loop_pacer.pace();
   }
 }
@@ -378,7 +379,7 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
   imu.load_calibration();
   imu.enable();
   imu.measure_offsets();
-  
+
 
   // The quaternion that can convert a vector in body coordinates
   // to ground coordinates when it its changed to a matrix.
@@ -405,32 +406,32 @@ int i=0;
     vector angular_velocity = imu.read_gyro_all();
     vector acceleration = imu.read_acc_all();
     vector magnetic_field = imu.read_mag_all();
-    
+
     i++;
-    
+
 	//imu.read_acc_raw();
 	//imu.read_gyro_raw();
-	//imu.read_mag_raw();       
+	//imu.read_mag_raw();
 
-    
+
     // MADGWICK ALGO VARIABLES
     const float angular_x = angular_velocity(0);
     const float angular_y = angular_velocity(1);
     const float angular_z = angular_velocity(2);
-    
+
     const float acc_x = acceleration(0);
 	const float acc_y = acceleration(1);
 	const float acc_z = acceleration(2);
-	
+
 	const float mag_x = magnetic_field(0);
 	const float mag_y = magnetic_field(1);
 	const float mag_z = magnetic_field(2);
 	//*************************************//
-	
+
 	//madgwick = MadgwickAHRSupdate(angular_x, angular_y, angular_z, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z);
     //std::cout << "Mad quat1 : " << madgwick << endl;
 	//matrix madgwick_matrix = madgwick.toRotationMatrix();
-	
+
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
 	//std::cout << "OUTPUT1 : " ;
@@ -456,7 +457,7 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
    imu.enable();
    pacer loop_pacer;
    loop_pacer.set_period_ns(20000000); // Default : 20000000
-  
+
    //char path[] = "/home/robin/instantWave/minimu9/tests/robot/results1bis.txt";
    int l_max=0;
    char buffer[MAX_CHAR_PER_LINE];
@@ -468,11 +469,11 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
 			while(!feof(results))
 		{
 			fgets(buffer,MAX_CHAR_PER_LINE,results);
-			l_max++; //Counting the number of lines of the file 
+			l_max++; //Counting the number of lines of the file
 		}
 	}
 	fclose(results);
-	
+
 	data.m_x = (int32_t*)malloc(l_max*sizeof(float));
     data.m_y = (int32_t*)malloc(l_max*sizeof(float));
     data.m_z = (int32_t*)malloc(l_max*sizeof(float));
@@ -482,9 +483,9 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
     data.g_x = (int32_t*)malloc(l_max*sizeof(float));
     data.g_y = (int32_t*)malloc(l_max*sizeof(float));
     data.g_z = (int32_t*)malloc(l_max*sizeof(float));
-	
+
     imu.retrieve(path, &data, l_max);
-	imu.measure_offsets_conv(data.g_x, data.g_y, data.g_z);			
+	imu.measure_offsets_conv(data.g_x, data.g_y, data.g_z);
 	quaternion rotation = quaternion::Identity();
 	auto start = std::chrono::steady_clock::now();
 
@@ -496,15 +497,15 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
 		    float dt = duration.count() / 1e9;
 	        if (dt < 0){ throw std::runtime_error("Time went backwards."); }
 		 	//cout << data.m_x[i] << data.m_y[i] << data.m_z[i] << data.a_x[i] << data.a_y[i] << data.a_z[i] << data.g_x[i] << data.g_y[i] << data. g_z[i] << endl;
-			
+
 			vector angular_velocity = imu.read_gyro_conv(data.g_x[i], data.g_y[i], data.g_z[i]);
 			vector acceleration = imu.read_acc_conv(data.a_x[i], data.a_y[i], data.a_z[i]);
 			vector magnetic_field = imu.read_mag_conv(data.m_x[i], data.m_y[i], data.m_z[i]);
-			
+
 			//cout << "angular velocity = " << angular_velocity << "  "  << "acceleration= " << acceleration << "    " << "mag = " << magnetic_field << endl;
-			
+
 			fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
-			
+
 			//std::cout << "OUTPUT1 : " ;
 			output(rotation);
 			std::cout << "   ";
@@ -516,7 +517,7 @@ void ahrs_conversion(imu & imu, fuse_function *fuse, rotation_output_function *o
 			std::cout << "   ";
 			std::cout << acceleration << "   " <<magnetic_field << std::endl;
 		    loop_pacer.pace();
-		} 
+		}
 }
 
 int main_with_exceptions(int argc, char **argv)
@@ -599,15 +600,15 @@ int main_with_exceptions(int argc, char **argv)
   }
   else if (options.mode == "conversion")
   {
-	char path[200] = "";  
+	char path[200] = "";
 	cout << " Please write down the ABSOLUTE path of the file to convert " << endl;
 	cout << "ex : home/.../.../.../file.txt" << endl;
 	cout << "PATH = " ;
 	fgets(path, sizeof(path), stdin);
 	clean(path,stdin);
-	
+
 	FILE* test_exist = fopen(path,"r+");
-	
+
 	while(test_exist == NULL)
 	{
 		cout << "The file doesn't exist or the path is wrong." << endl;
@@ -617,8 +618,8 @@ int main_with_exceptions(int argc, char **argv)
 		clean(path,stdin);
 		test_exist = fopen(path,"r+");
 	}
-	ahrs_conversion(imu, &fuse_default, &output_matrix, &output_quaternion, &output_euler, path); 
-	
+	ahrs_conversion(imu, &fuse_default, &output_matrix, &output_quaternion, &output_euler, path);
+
   }
   else if (options.mode == "gyro-only")
   {

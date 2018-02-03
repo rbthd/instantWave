@@ -35,7 +35,7 @@ minimu9::comm_config minimu9::auto_detect(const std::string & i2c_bus_name)
     }
 }
 {
-  // Detect LIS3MDL devices.
+  // Detect LIS3MDL sensor.
       auto addrs = { lis3mdl::SA1_LOW_ADDR, lis3mdl::SA1_LOW_ADDR };
     for (uint8_t addr : addrs)
     {
@@ -50,6 +50,22 @@ minimu9::comm_config minimu9::auto_detect(const std::string & i2c_bus_name)
       }
     }
  }
+ {
+   // Detect LPS25H sensor.
+       auto addrs = { lps25h::SA0_LOW_ADDR};
+     for (uint8_t addr : addrs)
+     {
+       int result = bus.try_write_byte_and_read_byte(addr, l::WHO_AM_I);
+       if (result == lis3mdl::LIS3MDL)
+       {
+         config.lps25h.use_sensor = true;
+         config.lps25h.device = (lps25h::device_type)result;
+         config.lps25h.i2c_bus_name = i2c_bus_name;
+         config.lps25h.i2c_address = (lps25h::i2c_addr)addr;
+         break;
+       }
+     }
+  }
   return config;
 }
 
@@ -66,6 +82,11 @@ sensor_set minimu9::config_sensor_set(const comm_config & config)
   if (config.lis3mdl.use_sensor)
   {
     set.mag = true;
+  }
+
+  if (config.lps25h.use_sensor)
+  {
+    set.pressure = true;
   }
   return set;
 }
@@ -95,6 +116,15 @@ minimu9::comm_config minimu9::disable_redundant_sensors(
   {
     missing.mag = false;
   }
+
+  if (!missing.pressure)
+  {
+    config.lps25h.use_sensor = false;
+  }
+  else if (config.lps25h.use_sensor)
+  {
+    missing.pressure = false;
+  }
   return config;
 }
 
@@ -111,6 +141,11 @@ void minimu9::handle::open(const comm_config & config)
   {
     lis3mdl.open(config.lis3mdl);
   }
+
+  if (config.lps25h.use_sensor)
+  {
+    lis3mdl.open(config.lps25h);
+  }
 }
 
 void minimu9::handle::enable()
@@ -123,6 +158,11 @@ void minimu9::handle::enable()
   if (config.lis3mdl.use_sensor)
   {
     lis3mdl.enable();
+  }
+
+  if (config.lps25h.use_sensor)
+  {
+    lps25h.enable();
   }
 }
 
@@ -218,6 +258,19 @@ void minimu9::handle::read_gyro_raw_all()
   {
     lsm6.read_gyro();
     for (int i = 0; i < 3; i++) { g[i] = lsm6.g[i]; cout << g[i] << " " ; }
+  }
+  else
+  {
+    throw std::runtime_error("No gyro to read.");
+  }
+}
+
+void minimu9::handle::read_pressure_raw()
+{
+  if (config.lps25h.use_sensor)
+  {
+    lps25h.read();
+    p = lps25h.p; }
   }
   else
   {
@@ -325,7 +378,7 @@ vector minimu9::handle::read_gyro_all()
 }
 
 vector minimu9::handle::read_mag_conv(int32_t m_x, int32_t m_y, int32_t m_z)
-{	
+{
   vector v;
   v(0) = (float)(m_x - mag_min(0)) / (mag_max(0) - mag_min(0)) * 2 - 1;
   v(1) = (float)(m_y - mag_min(1)) / (mag_max(1) - mag_min(1)) * 2 - 1;
@@ -367,11 +420,11 @@ int32_t m_x[l_max], m_y[l_max], m_z[l_max], a_x[l_max], a_y[l_max], a_z[l_max], 
 results=fopen(PATH,"rt");
 
 	while(!feof(results))
-	{	
+	{
 		j=0;
 		fgets(buffer,MAX_CHAR_PER_LINE,results);
 		token = strtok(buffer,SEP);
-		
+
 		while(token !=NULL && j<CMAX)
 		{
 			values[i][j] = atoi(token);
@@ -381,7 +434,7 @@ results=fopen(PATH,"rt");
 		i++;
 	}
 
-fclose(results); // Closing the file 
+fclose(results); // Closing the file
 i = j = 0;
 
 	for(int x=0; x<l_max-1; x++)
@@ -395,7 +448,7 @@ i = j = 0;
 			data->g_x[i] = values[x][6];
 			data->g_y[i] = values[x][7];
 			data->g_z[i] = values[x][8];
-			
+
 			i++;
 		}
 	}

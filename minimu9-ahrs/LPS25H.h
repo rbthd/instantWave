@@ -3,7 +3,7 @@
 #include <i2c_bus.h>
 #include <cstdint>
 
-namespace lsm6
+namespace lps25h
 {
   enum device_type
   {
