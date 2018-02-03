@@ -28,7 +28,11 @@ echo "<name replace-wildcards= »yes »>%h</name>" >> /etc/avahi/services/afpd.s
 echo "<service>" >> /etc/avahi/services/afpd.service
 echo "<type>_afpovertcp._tcp</type>" >> /etc/avahi/services/afpd.service
 echo "<port>548</port>" >> /etc/avahi/services/afpd.service
+<<<<<<< HEAD
 echo "</service>" >> /etc/avahi/services/afpd.service
+=======
+echo "</service>" >> /etc/avahi/services/afpd.services
+>>>>>>> 0e8ce123c9bdd4ade4997cd516f8a3d10236c914
 echo "</service-group>" >> /etc/avahi/services/afpd.service
 exit
 
