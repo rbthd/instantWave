@@ -9,3 +9,5 @@ Tests/
 .gitignore
 *DS_Store*
 .AppleDouble/
+scripts/init_minimu9.sh
+scripts/init_rpi.sh
