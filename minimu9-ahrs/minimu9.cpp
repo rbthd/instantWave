@@ -390,19 +390,19 @@ vector minimu9::handle::read_mag_conv(int32_t m_x, int32_t m_y, int32_t m_z)
 
 vector minimu9::handle::read_acc_conv(int32_t a_x, int32_t a_y, int32_t a_z)
 {
-			a[0] = a_x;
-			a[1] = a_y;
-			a[2] = a_z;
-			return vector_from_ints(&a) * get_acc_scale();
+	a[0] = a_x;
+	a[1] = a_y;
+	a[2] = a_z;
+	return vector_from_ints(&a) * get_acc_scale();
 
 }
 
 
 vector minimu9::handle::read_gyro_conv(int32_t g_x, int32_t g_y, int32_t g_z)
 {
-			g[0]=g_x;
-			g[1]=g_y;
-			g[2]=g_z;
+	g[0]=g_x;
+	g[1]=g_y;
+	g[2]=g_z;
 
   return (vector_from_ints(&g) - gyro_offset) * get_gyro_scale();
 }

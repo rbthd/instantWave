@@ -195,7 +195,7 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
 
   // Set up a timer that expires every 20 ms.
   pacer loop_pacer;
-  loop_pacer.set_period_ns(500000000);
+  loop_pacer.set_period_ns(20000000);
 
   auto start = std::chrono::steady_clock::now();
   while(1)
@@ -211,14 +211,14 @@ void ahrs(imu & imu, fuse_function * fuse, rotation_output_function * output)
     vector angular_velocity = imu.read_gyro();
     vector magnetic_field = imu.read_mag();
     
-    float pressure_reg = imu.read_pressure_raw();
-	float pressure = pressure_reg/4096.00;
-	float altitude = (44330.8*(1-(pow((pressure)/1013.25,0.190263)))); //Compute actual altitude based on sea level
+    //float pressure_reg = imu.read_pressure_raw();
+	//float pressure = pressure_reg/4096.00;
+	//float altitude = (44330.8*(1-(pow((pressure)/1013.25,0.190263)))); //Compute actual altitude based on sea level
 
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
     output(rotation);
-    std::cout << "  " << acceleration << "  " << magnetic_field << "       "  << pressure << "   "  << altitude << std::endl ;
+    std::cout << "  " << acceleration << "  " << magnetic_field << std::endl ;
     loop_pacer.pace();
   }
 }
@@ -272,6 +272,11 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
 	//(const float)madgwick_tmp[2], (const float)madgwick_tmp[3]); //coeff are casted to match Eigen definition of quaternion's creator
 	//*************************************//
 
+	//BAROMETER Variables
+	float pressure_reg = imu.read_pressure_raw();
+	float pressure = pressure_reg/4096.00;
+	float altitude = (44330.8*(1-(pow((pressure)/1013.25,0.190263)))); //Compute actual altitude based on sea level
+
     fuse(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
 	//std::cout << "OUTPUT1 : " ;
@@ -284,7 +289,7 @@ void ahrs_global(imu & imu, fuse_function * fuse, rotation_output_function * out
     //std::cout << "OUTPUT3 : " ;
     output3(rotation);
     std::cout << "   ";
-    std::cout << acceleration << "  " << magnetic_field << std::endl;
+    std::cout << acceleration << "  " << magnetic_field << "    " << pressure << "   " << altitude << std::endl;
     //std::cout << "Mad quat : " << madgwick << endl;
 
     loop_pacer.pace();
