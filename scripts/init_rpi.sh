@@ -21,6 +21,7 @@ sudo apt-get install -y netatalk
 sudo update-rc.d avahi-daemon defaults
 
 sudo su
+<<<<<<< HEAD
 echo "<?xml version= »1.0″ standalone=’no’?><!–*-nxml-*–>"      >> /etc/avahi/services/afpd.service
 echo "<!DOCTYPE service-group SYSTEM « avahi-service.dtd »>"    >> /etc/avahi/services/afpd.service
 echo "<service-group>"                                          >> /etc/avahi/services/afpd.service
@@ -31,6 +32,17 @@ echo "<port>548</port>"                                         >> /etc/avahi/se
 echo "</service>"                                               >> /etc/avahi/services/afpd.service
 echo "</service>"                                               >> /etc/avahi/services/afpd.services
 echo "</service-group>"                                         >> /etc/avahi/services/afpd.service
+=======
+echo "<?xml version= »1.0″ standalone=’no’?><!–*-nxml-*–>" 	>> /etc/avahi/services/afpd.service
+echo "<!DOCTYPE service-group SYSTEM « avahi-service.dtd »>" 	>> /etc/avahi/services/afpd.service
+echo "<service-group>" 						>> /etc/avahi/services/afpd.service
+echo "<name replace-wildcards= »yes »>%h</name>" 		>> /etc/avahi/services/afpd.service
+echo "<service>" 						>> /etc/avahi/services/afpd.service
+echo "<type>_afpovertcp._tcp</type>" 				>> /etc/avahi/services/afpd.service
+echo "<port>548</port>" 					>> /etc/avahi/services/afpd.service
+echo "</service>" 						>> /etc/avahi/services/afpd.service
+echo "</service-group>" 					>> /etc/avahi/services/afpd.service
+>>>>>>> f2439345c85a1b0818f1363796873772ab626395
 exit
 
 sudo /etc/init.d/avahi-daemon restart
