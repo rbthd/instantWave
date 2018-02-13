@@ -288,7 +288,7 @@ float minimu9::handle::get_acc_scale() const
   // LSM303D: at FS = 8 g, 0.244 mg/LSB (16-bit reading)
   // LSM6DS33: at FS = 8 g, 0.244 mg/LSB (16-bit reading)
   //			at FS = 2 g, 0.061 mg/LSB
-  return 0.000061;
+  return 0.000244;
 }
 
 float minimu9::handle::get_gyro_scale() const
@@ -298,7 +298,7 @@ float minimu9::handle::get_gyro_scale() const
   // L3GD20,   FS = 2000 dps: 70 mdps/digit
   // L3GD20H,  FS = 2000 dps: 70 mdps/digit
   // LSM6DS33, FS = 2000 dps: 70 mdps/digit
-  return 0.004375 * 3.14159265 / 180;
+  return 0.070 * 3.14159265 / 180;
 }
 
 void minimu9::handle::measure_offsets()

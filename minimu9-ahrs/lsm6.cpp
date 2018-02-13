@@ -19,8 +19,12 @@ void lsm6::handle::enable()
     //// LSM6DS33 gyro
 
     // ODR = 1000 (1.66 kHz (high performance))
-    // FS_G = 11 (2000 dps) //Changed for 00 : 245 dps
-    write_reg(CTRL2_G, 0b10000000);
+    // FS_G = 11 (2000 dps) //Changed for 001 : 125 dps
+    write_reg(CTRL2_G, 0b10001100);
+
+	//HP_G_EN = 1 : HP filter of gyrometers activated
+	//HPCF_G = 00 : HP filter cutoff frequency = 0.0081 Hz
+	//write_reg(CTRL7_G, 0b01000000);
 
     // defaults
     write_reg(CTRL7_G, 0b00000000);
@@ -30,7 +34,11 @@ void lsm6::handle::enable()
     // ODR = 1000 (1.66 kHz (high performance))
     // FS_XL = 11 (8 g full scale) //Changed for 00 = 2g FS
     // BW_XL = 00 (400 Hz filter bandwidth)
-    write_reg(CTRL1_XL, 0b10000000);
+    write_reg(CTRL1_XL, 0b10001100);
+    
+    //LPF2_XL_EN = 1 : 2nd LP filter enable
+    //HPCF_XL = 11 : HP Filter of accelero at ODR/400 (but basically desactivated if LP2 activated)
+    //write_reg(CTRL8_XL, 0b10000100);
 
     //// common
 
