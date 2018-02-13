@@ -17,7 +17,7 @@ CPPFLAGS += -g -O2
 # Weird stuff needed to do OpenGL ES 2 on a Raspberry Pi
 CPPFLAGS += -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux
 LDFLAGS += -L/opt/vc/lib
-LDLIBS += -lGLESv2 -lbcm_host -lEGL -lm -lstdc++
+LDLIBS += -lbrcmEGL -lbcm_host -lbrcmGLESv2 -lm -lstdc++
 
 # Tell the cpp file where assets are stored.
 CPPFLAGS += -DASSET_DIR="\"$(assetdir)\""

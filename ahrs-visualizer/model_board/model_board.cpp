@@ -21,8 +21,8 @@ void model_board_init(void)
     std::string asset_dir = asset_dir_get();
     texture_top = png_texture_load((asset_dir + "/top2.png").c_str(), NULL, NULL);
     texture_bottom = png_texture_load((asset_dir + "/bottom2.png").c_str(), NULL, NULL);
-
-    if (texture_top == 0 || texture_bottom == 0)
+    
+    if (texture_top == 0 || texture_bottom == 0 )
     {
         throw std::runtime_error("Loading textures failed.");
     }
@@ -57,7 +57,6 @@ void model_board_redraw(float * acceleration, float * magnetic_field)
     glDrawArrays(GL_TRIANGLE_STRIP, 16, 4);
     glDrawArrays(GL_TRIANGLE_STRIP, 20, 4);
 
-
     // X, Y, Z axes
     glDrawArrays(GL_LINES, 24, 2);
     glDrawArrays(GL_LINES, 26, 2);
@@ -69,7 +68,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field)
     vertices[3*31+1] = acceleration[1] * accel_scale;
     vertices[3*31+2] = acceleration[2] * accel_scale;
     glDrawArrays(GL_LINES, 30, 2);
-
+    
     // Magnetic field
     const float mag_scale = 3;
     vertices[3*33+0] = magnetic_field[0] * mag_scale;
